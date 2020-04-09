@@ -5,12 +5,12 @@ from whynot.framework import parameter
 from whynot.simulators import covid19
 
 
-__all__ = ["get_experiments", "COVID19RCT", "COVID19Confounding"]
+__all__ = ["get_experiments", "COVID19RCT"]
 
 
 def get_experiments():
     """Return all experiments for COVID19."""
-    return [COVID19RCT, COVID19Confounding]
+    return [COVID19RCT]
 
 
 def sample_initial_states(rng):
@@ -35,7 +35,7 @@ COVID19RCT = DynamicsExperiment(
     simulator_config=covid19.Config(start_time=0, end_time=100),
     intervention=covid19.Intervention(time=50, beta=0.05),
     state_sampler=sample_initial_states,
-    # propensity_scorer=0.5,
+    propensity_scorer=0.5,
     outcome_extractor=lambda run: run[99].infected,
     covariate_builder=lambda run: run.initial_state.values(),
 )
