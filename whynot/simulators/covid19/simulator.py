@@ -41,7 +41,7 @@ class Config(BaseConfig):
 @dataclasses.dataclass
 class State(BaseState):
     # pylint: disable-msg=too-few-public-methods
-    """State of the HIV simulator.
+    """State of the COVID-19 simulator.
 
     The default state corresponds to an early infection state, defined by Adams
     et al. The early infection state is designed based on an unstable uninfected
@@ -62,7 +62,7 @@ class State(BaseState):
 
 class Intervention(BaseIntervention):
     # pylint: disable-msg=too-few-public-methods
-    """Parameterization of an intervention in the HIV model.
+    """Parameterization of an intervention in the COVID-19 model.
 
     Examples
     --------
@@ -86,7 +86,7 @@ class Intervention(BaseIntervention):
 
 
 def dynamics(state, time, config, intervention=None):
-    """Update equations for the HIV simulaton.
+    """Update equations for the COVID-19 simulaton.
 
     Parameters
     ----------
@@ -108,10 +108,9 @@ def dynamics(state, time, config, intervention=None):
     if intervention and time >= intervention.time:
         config = config.update(intervention)
 
-    # Keep notation roughly consistent with the Adams paper.
     # pylint: disable-msg=invalid-name
     (
-        susceptible,
+        susceptible, 
         exposed,
         infected,
         recovered

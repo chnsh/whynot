@@ -9,7 +9,7 @@ __all__ = ["get_experiments", "COVID19RCT", "COVID19Confounding"]
 
 
 def get_experiments():
-    """Return all experiments for HIV."""
+    """Return all experiments for COVID19."""
     return [COVID19RCT, COVID19Confounding]
 
 
