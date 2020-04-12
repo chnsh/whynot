@@ -18,6 +18,10 @@ class Config(BaseConfig):
     covid19.Config(duration=200)
 
     """
+    set_sigma: float = 0.0
+    set_mu: float = 0.0
+    set_beta: float = 0.0
+
     # simulation parameters
     # exposed to infective probability
     sigma: float = 0.1
@@ -121,10 +125,10 @@ def dynamics(state, time, config, intervention=None):
                             infected,
                             recovered])
 
-    delta_susceptible = -config.beta * (susceptible * infected) / total_population
-    delta_exposed = config.beta * (susceptible * infected) / total_population - config.sigma * exposed
-    delta_infected = config.sigma * exposed - config.mu * infected
-    delta_recovered = config.mu * infected
+    delta_susceptible = (1-config.set_beta)*-config.beta * (susceptible * infected) / total_population
+    delta_exposed = (1-config.set_beta) * config.beta * (susceptible * infected) / total_population - (1-config.set_sigma)*config.sigma * exposed
+    delta_infected = (1-config.set_sigma) * config.sigma * exposed - (1-config.set_mu)*config.mu * infected
+    delta_recovered = (1-config.set_mu)*config.mu * infected
 
     ds_dt = [
         delta_susceptible, delta_exposed, delta_infected, delta_recovered

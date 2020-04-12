@@ -5,14 +5,15 @@ from whynot.gym.envs import ODEEnvBuilder, register
 from whynot.simulators.covid19 import Config, Intervention, simulate, State
 
 
-def get_intervention(action, time, val):
+def get_intervention(action, time):
     """Return the intervention in the simulator required to take action."""
-    action_to_intervention_map = {
-        0: Intervention(time=time, sigma=val),
-        1: Intervention(time=time, beta=val),
-        2: Intervention(time=time, mu=val),
-    }
-    return action_to_intervention_map[action]
+    set_sigma, set_beta, set_mu = action
+    return Intervention(
+        time=time,
+        set_sigma=set_sigma,
+        set_beta=set_beta,
+        set_mu=set_mu,
+    )
 
 
 def get_reward(intervention, state, time):
@@ -32,14 +33,23 @@ def observation_space():
     state_space_high = np.inf * np.ones(state_dim)
     return spaces.Box(state_space_low, state_space_high, dtype=np.float64)
 
+def action_space():
+    """Return action space.
+
+    There are three control variables in the model:
+        - Set sigma
+        - Set beta
+        - Set mu
+
+    """
+    return spaces.Box(np.zeros(3), np.ones(3), dtype=np.float64)
+
 
 Covid19Env = ODEEnvBuilder(
     simulate_fn=simulate,
     config=Config(),
     initial_state=State(),
-    # In this environment there are 3 actions
-    # (we can set values of any of the three parameters)
-    action_space=spaces.Discrete(3),
+    action_space=action_space(),
     observation_space=observation_space(),
     timestep=1.0,
     intervention_fn=get_intervention,
@@ -47,5 +57,5 @@ Covid19Env = ODEEnvBuilder(
 )
 
 register(
-    id="COVID19-v0", entry_point=Covid19Env, max_episode_steps=400, reward_threshold=1e10,
+    id="COVID19-v0", entry_point=Covid19Env, max_episode_steps=200, reward_threshold=1e10,
 )
