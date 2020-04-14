@@ -18,24 +18,21 @@ class Config(BaseConfig):
     covid19.Config(duration=200)
 
     """
-    set_sigma: float = 0.0
-    set_mu: float = 0.0
-    set_beta: float = 0.0
 
     # simulation parameters
-    # exposed to infective probability
-    sigma: float = 0.1
-    # susceptible to exposed probability
-    beta: float = 0.2
-    # recovery probability
-    mu: float = 0.6
+    # exposed to infective parameter
+    sigma: float = 0.2
+    # susceptible to exposed parameter
+    beta: float = 1.75
+    # recovery parameter
+    mu: float = 0.5  # on average 2.5 days to recover
 
     #: Simulation start time (in day)
     start_time: float = 0
     #: Simulation end time (in days)
     end_time: float = 400
     #: How frequently to measure simulator state
-    delta_t: float = 0.05
+    delta_t: float = 1.0
     #: solver relative tolerance
     rtol: float = 1e-6
     #: solver absolute tolerance
@@ -55,7 +52,7 @@ class State(BaseState):
 
     # pylint: disable-msg=invalid-name
     #: Number of susceptible
-    susceptible: int = 100
+    susceptible: int = 9999
     #: Number of exposed
     exposed: int = 1
     #: Number of infected
@@ -114,7 +111,7 @@ def dynamics(state, time, config, intervention=None):
 
     # pylint: disable-msg=invalid-name
     (
-        susceptible, 
+        susceptible,
         exposed,
         infected,
         recovered
@@ -125,10 +122,10 @@ def dynamics(state, time, config, intervention=None):
                             infected,
                             recovered])
 
-    delta_susceptible = (1-config.set_beta)*-config.beta * (susceptible * infected) / total_population
-    delta_exposed = (1-config.set_beta) * config.beta * (susceptible * infected) / total_population - (1-config.set_sigma)*config.sigma * exposed
-    delta_infected = (1-config.set_sigma) * config.sigma * exposed - (1-config.set_mu)*config.mu * infected
-    delta_recovered = (1-config.set_mu)*config.mu * infected
+    delta_susceptible = -config.beta * (susceptible * infected)
+    delta_exposed = config.beta * (susceptible * infected) - config.sigma * exposed
+    delta_infected = config.sigma * exposed - config.mu * infected
+    delta_recovered = config.mu * infected
 
     ds_dt = [
         delta_susceptible, delta_exposed, delta_infected, delta_recovered
