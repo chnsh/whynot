@@ -7,12 +7,18 @@ from whynot.simulators.covid19 import Config, Intervention, simulate, State
 
 def get_intervention(action, time):
     """Return the intervention in the simulator required to take action."""
-    sigma_scale_factor, beta_scale_factor, mu_i_scale_factor = action
+    beta_scale_factor, mu_i_scale_factor, mu_h_scale_factor, proportion_hospitalized, \
+    proportion_recovered_without_hospitalization, proportion_recovered_after_hospitalization = action
     return Intervention(
         time=time,
-        sigma_scale_factor=sigma_scale_factor,
         beta_scale_factor=beta_scale_factor,
         mu_i_scale_factor=mu_i_scale_factor,
+        mu_h_scale_factor=mu_h_scale_factor,
+        proportion_hospitalized=proportion_hospitalized,
+        proportion_recovered_after_hospitalization=proportion_recovered_after_hospitalization,
+        proportion_dead_after_hospitalization=1 - proportion_recovered_after_hospitalization,
+        proportion_recovered_without_hospitalization=proportion_recovered_without_hospitalization,
+        proportion_dead_without_hospitalization=1 - proportion_recovered_without_hospitalization
     )
 
 

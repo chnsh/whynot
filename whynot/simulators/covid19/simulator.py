@@ -77,7 +77,7 @@ class State(BaseState):
 
     # pylint: disable-msg=invalid-name
     #: Number of susceptible
-    susceptible: int = 9999
+    susceptible: int = 9998
     #: Number of exposed
     exposed: int = 1
     #: Number of infected
