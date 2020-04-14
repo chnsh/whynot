@@ -30,7 +30,7 @@ class Config(BaseConfig):
     # infected to death param
     tau_i: float = 1 / 10  # mean time to death without hospital
     # infected to recovery parameter
-    mu_i: float = 1 / 2.5  # on average 2.5 days to recover
+    mu_i: float = 1 / 1.5  # on average 2.5 days to recover
 
     # hospitalized to recovery parameter
     mu_h: float = 1 / 5  # on average 5 days to recover
