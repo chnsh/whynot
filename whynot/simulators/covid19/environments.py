@@ -18,7 +18,7 @@ def get_intervention(action, time):
 
 def get_reward(intervention, state, time):
     """Compute the reward based on the observed state and choosen intervention."""
-    cost = state.infected - state.recovered
+    cost = 100 * state.exposed + 1000 * state.infected - 1 * state.recovered
     discount = 4.0 / 365
     return -cost + np.exp(discount * time)
 
