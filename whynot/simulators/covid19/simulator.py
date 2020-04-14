@@ -32,11 +32,15 @@ class Config(BaseConfig):
     #: Simulation end time (in days)
     end_time: float = 400
     #: How frequently to measure simulator state
-    delta_t: float = 1.0
+    delta_t: float = 1
     #: solver relative tolerance
     rtol: float = 1e-6
     #: solver absolute tolerance
     atol: float = 1e-6
+
+    sigma_scale_factor: float = 1.0
+    beta_scale_factor: float = 1.0
+    mu_scale_factor: float = 1.0
 
 
 @dataclasses.dataclass
@@ -56,7 +60,7 @@ class State(BaseState):
     #: Number of exposed
     exposed: int = 1
     #: Number of infected
-    infected: int = 0
+    infected: int = 1
     #: Number of recovered
     recovered: int = 0
 
@@ -117,15 +121,14 @@ def dynamics(state, time, config, intervention=None):
         recovered
     ) = state
 
-    total_population = sum([susceptible,
-                            exposed,
-                            infected,
-                            recovered])
+    total_population = susceptible + recovered + infected + exposed
 
-    delta_susceptible = -config.beta * (susceptible * infected)
-    delta_exposed = config.beta * (susceptible * infected) - config.sigma * exposed
-    delta_infected = config.sigma * exposed - config.mu * infected
-    delta_recovered = config.mu * infected
+    delta_susceptible = -(config.beta * config.beta_scale_factor) * (susceptible * infected) / total_population
+    delta_exposed = (config.beta * config.beta_scale_factor) * (susceptible * infected) / total_population - (
+            config.sigma * config.sigma_scale_factor) * exposed
+    delta_infected = (config.sigma * config.sigma_scale_factor) * exposed - (
+            config.mu * config.mu_scale_factor) * infected
+    delta_recovered = (config.mu * config.mu_scale_factor) * infected
 
     ds_dt = [
         delta_susceptible, delta_exposed, delta_infected, delta_recovered
