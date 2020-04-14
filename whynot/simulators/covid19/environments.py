@@ -7,18 +7,18 @@ from whynot.simulators.covid19 import Config, Intervention, simulate, State
 
 def get_intervention(action, time):
     """Return the intervention in the simulator required to take action."""
-    sigma_scale_factor, beta_scale_factor, mu_scale_factor = action
+    sigma_scale_factor, beta_scale_factor, mu_i_scale_factor = action
     return Intervention(
         time=time,
         sigma_scale_factor=sigma_scale_factor,
         beta_scale_factor=beta_scale_factor,
-        mu_scale_factor=mu_scale_factor,
+        mu_i_scale_factor=mu_i_scale_factor,
     )
 
 
 def get_reward(intervention, state, time):
     """Compute the reward based on the observed state and choosen intervention."""
-    cost = 100 * state.exposed + 1000 * state.infected - 1 * state.recovered
+    cost = 100000 * state.deceased + 10000 * state.hospitalized + 100 * state.exposed + 1000 * state.infected - 1 * state.recovered
     discount = 4.0 / 365
     return -cost + np.exp(discount * time)
 

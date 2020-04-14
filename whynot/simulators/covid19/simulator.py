@@ -23,9 +23,19 @@ class Config(BaseConfig):
     # exposed to infective parameter
     sigma: float = 0.2
     # susceptible to exposed parameter
-    beta: float = 1.75
-    # recovery parameter
-    mu: float = 0.5  # on average 2.5 days to recover
+    beta: float = 1.75  # average number of contacts per person
+
+    # infected to hospitalized param
+    gamma: float = 1 / 4  # mean time to hospital
+    # infected to death param
+    tau_i: float = 1 / 10  # mean time to death without hospital
+    # infected to recovery parameter
+    mu_i: float = 1 / 2.5  # on average 2.5 days to recover
+
+    # hospitalized to recovery parameter
+    mu_h: float = 1 / 5  # on average 5 days to recover
+    # hospitalized to dead parameter
+    tau_h: float = 1 / 4  # on average 4 days to die after hospitalized
 
     #: Simulation start time (in day)
     start_time: float = 0
@@ -38,9 +48,20 @@ class Config(BaseConfig):
     #: solver absolute tolerance
     atol: float = 1e-6
 
+    proportion_hospitalized: float = 0.3
+    proportion_recovered_without_hospitalization: float = 0.6
+    proportion_dead_without_hospitalization: float = 0.1
+
+    proportion_dead_after_hospitalization: float = 0.05
+    proportion_recovered_after_hospitalization: float = 0.95
+
     sigma_scale_factor: float = 1.0
     beta_scale_factor: float = 1.0
-    mu_scale_factor: float = 1.0
+    gamma_scale_factor: float = 1.0
+    mu_i_scale_factor: float = 1.0
+    mu_h_scale_factor: float = 1.0
+    tau_i_scale_factor: float = 1.0
+    tau_h_scale_factor: float = 1.0
 
 
 @dataclasses.dataclass
@@ -61,8 +82,12 @@ class State(BaseState):
     exposed: int = 1
     #: Number of infected
     infected: int = 1
+    # Number of hospitalized
+    hospitalized: int = 0
     #: Number of recovered
     recovered: int = 0
+    # Number of deceased
+    deceased: int = 0
 
 
 class Intervention(BaseIntervention):
@@ -90,7 +115,7 @@ class Intervention(BaseIntervention):
         super(Intervention, self).__init__(Config, time, **kwargs)
 
 
-def dynamics(state, time, config, intervention=None):
+def dynamics(state, time, config: Config, intervention=None):
     """Update equations for the COVID-19 simulaton.
 
     Parameters
@@ -118,20 +143,46 @@ def dynamics(state, time, config, intervention=None):
         susceptible,
         exposed,
         infected,
-        recovered
+        hospitalized,
+        recovered,
+        deceased
     ) = state
 
-    total_population = susceptible + recovered + infected + exposed
+    # no hospitalized here to avoid double count
+    total_population = susceptible + recovered + infected + exposed + deceased
 
-    delta_susceptible = -(config.beta * config.beta_scale_factor) * (susceptible * infected) / total_population
-    delta_exposed = (config.beta * config.beta_scale_factor) * (susceptible * infected) / total_population - (
-            config.sigma * config.sigma_scale_factor) * exposed
-    delta_infected = (config.sigma * config.sigma_scale_factor) * exposed - (
-            config.mu * config.mu_scale_factor) * infected
-    delta_recovered = (config.mu * config.mu_scale_factor) * infected
+    beta_factor = config.beta * config.beta_scale_factor
+    sigma_factor = config.sigma * config.sigma_scale_factor
+    mu_i_factor = config.mu_i * config.mu_i_scale_factor
+    mu_h_factor = config.mu_h * config.mu_h_scale_factor
+    gamma_factor = config.gamma * config.gamma_scale_factor
+    tau_i_factor = config.tau_i * config.tau_i_scale_factor
+    tau_h_factor = config.tau_h * config.tau_h_scale_factor
+
+    ## Differential dynamics start ##
+    delta_susceptible = -beta_factor * (susceptible * infected) / total_population
+
+    delta_exposed = beta_factor * (susceptible * infected) / total_population - (
+        sigma_factor) * exposed
+
+    delta_infected = sigma_factor * exposed - (mu_i_factor * config.proportion_recovered_without_hospitalization +
+                                               tau_i_factor * config.proportion_dead_without_hospitalization +
+                                               gamma_factor * config.proportion_hospitalized) * infected
+
+    delta_hospitalized = gamma_factor * config.proportion_hospitalized * infected - (
+            tau_h_factor * config.proportion_dead_after_hospitalization +
+            mu_h_factor * config.proportion_recovered_after_hospitalization) * hospitalized
+
+    delta_recovered = mu_i_factor * config.proportion_recovered_without_hospitalization * infected + \
+                      mu_h_factor * config.proportion_recovered_after_hospitalization * hospitalized
+
+    delta_deceased = tau_i_factor * config.proportion_dead_without_hospitalization * infected + \
+                     tau_h_factor * config.proportion_dead_after_hospitalization * hospitalized
+
+    ## Differential dynamics end ##
 
     ds_dt = [
-        delta_susceptible, delta_exposed, delta_infected, delta_recovered
+        delta_susceptible, delta_exposed, delta_infected, delta_hospitalized, delta_recovered, delta_deceased
     ]
     return ds_dt
 
