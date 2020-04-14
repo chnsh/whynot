@@ -49,7 +49,7 @@ class Config(BaseConfig):
     atol: float = 1e-6
 
     proportion_hospitalized: float = 0.3
-    proportion_recovered_without_hospitalization: float = 0.6
+    proportion_recovered_without_hospitalization: float = 0.9
     proportion_dead_without_hospitalization: float = 0.1
 
     proportion_dead_after_hospitalization: float = 0.05
@@ -165,18 +165,23 @@ def dynamics(state, time, config: Config, intervention=None):
     delta_exposed = beta_factor * (susceptible * infected) / total_population - (
         sigma_factor) * exposed
 
-    delta_infected = sigma_factor * exposed - (mu_i_factor * config.proportion_recovered_without_hospitalization +
-                                               tau_i_factor * config.proportion_dead_without_hospitalization +
+    delta_infected = sigma_factor * exposed - (mu_i_factor * (
+            1 - config.proportion_hospitalized) * config.proportion_recovered_without_hospitalization +
+                                               tau_i_factor * (
+                                                       1 - config.proportion_hospitalized) *
+                                               config.proportion_dead_without_hospitalization +
                                                gamma_factor * config.proportion_hospitalized) * infected
 
     delta_hospitalized = gamma_factor * config.proportion_hospitalized * infected - (
             tau_h_factor * config.proportion_dead_after_hospitalization +
             mu_h_factor * config.proportion_recovered_after_hospitalization) * hospitalized
 
-    delta_recovered = mu_i_factor * config.proportion_recovered_without_hospitalization * infected + \
+    delta_recovered = mu_i_factor * (
+            1 - config.proportion_hospitalized) * config.proportion_recovered_without_hospitalization * infected + \
                       mu_h_factor * config.proportion_recovered_after_hospitalization * hospitalized
 
-    delta_deceased = tau_i_factor * config.proportion_dead_without_hospitalization * infected + \
+    delta_deceased = tau_i_factor * (
+            1 - config.proportion_hospitalized) * config.proportion_dead_without_hospitalization * infected + \
                      tau_h_factor * config.proportion_dead_after_hospitalization * hospitalized
 
     ## Differential dynamics end ##
