@@ -7,8 +7,9 @@ from whynot.simulators.covid19 import Config, Intervention, simulate, State
 
 def get_intervention(action, time):
     """Return the intervention in the simulator required to take action."""
-    beta_scale_factor, mu_i_scale_factor, mu_h_scale_factor, proportion_hospitalized, \
-    proportion_recovered_without_hospitalization, proportion_recovered_after_hospitalization = action
+    (beta_scale_factor, mu_i_scale_factor, mu_h_scale_factor), (proportion_hospitalized,
+                                                                proportion_recovered_without_hospitalization,
+                                                                proportion_recovered_after_hospitalization) = action
     return Intervention(
         time=time,
         beta_scale_factor=beta_scale_factor,
@@ -49,7 +50,8 @@ def action_space():
         - Set mu
 
     """
-    return spaces.Box(np.zeros(3), np.inf * np.ones(3), dtype=np.float64)
+    return spaces.Tuple((spaces.Box(np.zeros(3), np.inf * np.ones(3), dtype=np.float64),
+                         spaces.Box(np.zeros(3), np.ones(3), dtype=np.float64)))
 
 
 Covid19Env = ODEEnvBuilder(
