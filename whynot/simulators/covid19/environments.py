@@ -8,11 +8,11 @@ from whynot.simulators.covid19 import Config, Intervention, simulate, State
 def get_intervention(action, time):
     """Return the intervention in the simulator required to take action."""
     scale_factor_val = action    
-    actions = [[0.9,0.75,0.5,0.0],[0.1,0.25,0.5,0.75],[0.25,0.5,0.75,0.99]]
+    actions = [[0.9,0.75,0.5,0.0,Covid19Env.config.beta_scale_factor],\
+        [0.1,0.25,0.5,0.75,Covid19Env.config.proportion_hospitalized],\
+            [0.25,0.5,0.75,0.99,Covid19Env.config.proportion_recovered_after_hospitalization]]
     actioncombos = list(itertools.product(*actions))
     action_to_intervention_map = {i:actioncombos[i] for i in range(len(actioncombos))}
-    action_to_intervention_map[len(action_to_intervention_map)] = (Covid19Env.config.beta_scale_factor, \
-        Covid19Env.config.proportion_hospitalized, Covid19Env.config.proportion_recovered_after_hospitalization)
 
     beta_scale_factor,proportion_hospitalized,proportion_recovered_after_hospitalization = action_to_intervention_map[scale_factor_val]
     return Intervention(
@@ -64,7 +64,7 @@ Covid19Env = ODEEnvBuilder(
     config=Config(),
     initial_state=State(),
     # action_space=action_space(),
-    action_space=spaces.Discrete(65),
+    action_space=spaces.Discrete(125),
     observation_space=observation_space(),
     timestep=1.0,
     intervention_fn=get_intervention,
