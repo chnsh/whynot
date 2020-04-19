@@ -1,5 +1,5 @@
 import numpy as np
-
+import itertools
 from whynot.gym import spaces
 from whynot.gym.envs import ODEEnvBuilder, register
 from whynot.simulators.covid19 import Config, Intervention, simulate, State
@@ -7,33 +7,14 @@ from whynot.simulators.covid19 import Config, Intervention, simulate, State
 
 def get_intervention(action, time):
     """Return the intervention in the simulator required to take action."""
-    # (beta_scale_factor_val), (proportion_hospitalized,proportion_recovered_without_hospitalization,
-    #                             proportion_recovered_after_hospitalization) = action
-    scale_factor_val = action
-    #0-3: scale factor for beta, 4-7: proportion hospitalized
-    action_to_intervention_map = {
-        0: 0.9,
-        1: 0.75,
-        2: 0.5,
-        3: 0.0,
-        4: 0.1,
-        5: 0.25,
-        6: 0.5,
-        7: 0.75,
-        8: 0.25,
-        9: 0.5,
-        10: 0.75,
-        11: 0.99
-    }
-    beta_scale_factor = 1.0
-    proportion_hospitalized = 0.3
-    proportion_recovered_after_hospitalization = 0.95
-    if action < 4:
-        beta_scale_factor = action_to_intervention_map[scale_factor_val]
-    elif action < 8:
-        proportion_hospitalized = action_to_intervention_map[scale_factor_val]
-    else:
-        proportion_recovered_after_hospitalization = action_to_intervention_map[scale_factor_val]
+    scale_factor_val = action    
+    actions = [[0.9,0.75,0.5,0.0],[0.1,0.25,0.5,0.75],[0.25,0.5,0.75,0.99]]
+    actioncombos = list(itertools.product(*actions))
+    action_to_intervention_map = {i:actioncombos[i] for i in range(len(actioncombos))}
+    action_to_intervention_map[len(action_to_intervention_map)] = (Covid19Env.config.beta_scale_factor, \
+        Covid19Env.config.proportion_hospitalized, Covid19Env.config.proportion_recovered_after_hospitalization)
+
+    beta_scale_factor,proportion_hospitalized,proportion_recovered_after_hospitalization = action_to_intervention_map[scale_factor_val]
     return Intervention(
         time=time,
         beta_scale_factor=beta_scale_factor,
@@ -83,7 +64,7 @@ Covid19Env = ODEEnvBuilder(
     config=Config(),
     initial_state=State(),
     # action_space=action_space(),
-    action_space=spaces.Discrete(12),
+    action_space=spaces.Discrete(65),
     observation_space=observation_space(),
     timestep=1.0,
     intervention_fn=get_intervention,
