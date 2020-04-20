@@ -30,7 +30,7 @@ def get_reward(intervention, state, time):
     # there was no social distancing.
 
     value_of_individual = 1
-    economic_output_per_time = np.random.choice([10, 100000])
+    economic_output_per_time = np.random.choice([10, 100000], p=[0.3, 0.7])
     current_social_distancing = 1 - intervention.updates['beta_scale_factor']
 
     reward = value_of_individual * (-state.deceased + state.susceptible)
