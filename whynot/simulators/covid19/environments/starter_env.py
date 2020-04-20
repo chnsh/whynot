@@ -26,12 +26,9 @@ def get_intervention(action, time):
 
 def get_reward(intervention, state, time):
     """Compute the reward based on the observed state and choosen intervention."""
-    C1 = 10
 
-    cost = 100 * state.infected
-    cost += C1 * (
-            1 - intervention.updates['beta_scale_factor'])  # cost of social distancing
-    return -cost
+    reward = 100 * state.susceptible - 100 * state.hospitalized - 1000 * state.deceased
+    return reward
 
 
 def observation_space():
