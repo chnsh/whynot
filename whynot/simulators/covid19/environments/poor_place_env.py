@@ -16,7 +16,7 @@ def get_intervention(action, time):
         5: 0.0
     }
 
-    non_adherence_propensity = 0.1
+    non_adherence_propensity = 0.01
 
     social_distancing = action_to_social_distancing_map[action]
 
