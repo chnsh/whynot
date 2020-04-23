@@ -15,8 +15,13 @@ def get_intervention(action, time):
         4: 0.10,
         5: 0.0
     }
+    non_adherence_propensity = 0.01
 
-    beta_scale_factor = 1.0 - action_to_social_distancing_map[action]
+    social_distancing = action_to_social_distancing_map[action]
+
+    social_distancing -= non_adherence_propensity * social_distancing
+
+    beta_scale_factor = 1.0 - social_distancing
 
     return Intervention(
         time=time,

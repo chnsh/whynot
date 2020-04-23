@@ -16,7 +16,13 @@ def get_intervention(action, time):
         5: 0.0
     }
 
-    beta_scale_factor = 1.0 - action_to_social_distancing_map[action]
+    non_adherence_propensity = np.random.choice([0.1, 0.01], p=[0.3, 0.7])
+
+    social_distancing = action_to_social_distancing_map[action]
+
+    social_distancing -= non_adherence_propensity * social_distancing
+
+    beta_scale_factor = 1.0 - social_distancing
 
     return Intervention(
         time=time,
