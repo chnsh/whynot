@@ -110,7 +110,7 @@ class NNPolicy(Policy):
 class PolicyGradientAgent:
     """An agent that learns a neural network policy through policy gradient."""
 
-    def __init__(self, env, gamma=0.99, learning_rate=1e-3):
+    def __init__(self, env, gamma=0.97, learning_rate=1e-3):
         # Discount factor gamma.
         self.gamma = gamma
         self.actor = NNPolicy(env)
@@ -221,20 +221,20 @@ def run_training_loop(
         # Update rule for epsilon s.t. after 100 iterations it's around 0.05.
         agent.actor.epsilon = np.maximum(0.05, agent.actor.epsilon * 0.97)
 
-    fig, (ax1, ax2, ax3) = plt.subplots(3, 1, sharex=True, figsize=[9, 9])
-    ax1.plot(avg_rewards)
-    ax1.set_xlabel("number of iterations")
-    ax1.set_ylabel("average total reward")
-    ax1.set_ylim(avg_rewards.min(), avg_rewards.max())
-    ax2.plot(loss)
-    ax2.set_xlabel("number of iterations")
-    ax2.set_ylabel("training loss")
-    ax2.set_ylim(loss.min(), loss.max())
-    ax3.plot(avg_episode_lengths)
-    ax3.set_xlabel("number of iterations")
-    ax3.set_ylabel("average episode length")
-    ax3.set_ylim(avg_episode_lengths.min(), avg_episode_lengths.max())
-    plt.show()
+    # fig, (ax1, ax2, ax3) = plt.subplots(3, 1, sharex=True, figsize=[9, 9])
+    # ax1.plot(avg_rewards)
+    # ax1.set_xlabel("number of iterations")
+    # ax1.set_ylabel("average total reward")
+    # ax1.set_ylim(avg_rewards.min(), avg_rewards.max())
+    # ax2.plot(loss)
+    # ax2.set_xlabel("number of iterations")
+    # ax2.set_ylabel("training loss")
+    # ax2.set_ylim(loss.min(), loss.max())
+    # ax3.plot(avg_episode_lengths)
+    # ax3.set_xlabel("number of iterations")
+    # ax3.set_ylabel("average episode length")
+    # ax3.set_ylim(avg_episode_lengths.min(), avg_episode_lengths.max())
+    # plt.show()
 
     agent.actor.epsilon = 0.0
     return agent.actor
