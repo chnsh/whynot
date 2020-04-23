@@ -110,7 +110,7 @@ class NNPolicy(Policy):
 class PolicyGradientAgent:
     """An agent that learns a neural network policy through policy gradient."""
 
-    def __init__(self, env, gamma=0.97, learning_rate=1e-3):
+    def __init__(self, env, gamma=0.95, learning_rate=1e-3):
         # Discount factor gamma.
         self.gamma = gamma
         self.actor = NNPolicy(env)
