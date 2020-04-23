@@ -16,7 +16,7 @@ def get_intervention(action, time):
         5: 0.0
     }
 
-    non_adherence_propensity = np.random.choice([0.1, 0.01], p=[0.3, 0.7])
+    non_adherence_propensity = np.random.choice([0.1, 0.01], p=[0.4, 0.6])
 
     social_distancing = action_to_social_distancing_map[action]
 
@@ -36,7 +36,7 @@ def get_reward(intervention, state, time):
     # there was no social distancing.
 
     value_of_individual = 1
-    economic_output_per_time = np.random.choice([10, 100000], p=[0.3, 0.7])
+    economic_output_per_time = np.random.choice([10, 100000], p=[0.4, 0.6])
     current_social_distancing = 1 - intervention.updates['beta_scale_factor']
 
     reward = value_of_individual * (-state.deceased + state.susceptible)

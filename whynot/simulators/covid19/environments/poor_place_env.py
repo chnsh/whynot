@@ -41,8 +41,6 @@ def get_reward(intervention, state, time):
 
     reward = value_of_individual * (-state.deceased + state.susceptible)
     reward -= economic_output_per_time * current_social_distancing  # lost economic output per time
-    # todo: possible extensions: recovered can also contribute, should we add those?
-    #   (the issue is that it leads to the model increasing infections because that is the only way to recovery)
     return reward
 
 
